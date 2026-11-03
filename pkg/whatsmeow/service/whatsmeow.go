@@ -410,6 +410,24 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 		minLevel = "INFO" // Nível mínimo para garantir que logs INFO apareçam
 	}
 	clientLog := waLog.Stdout("Client", minLevel, true)
+
+	// FIX (rsomoza01/evolution-go): la versión de WhatsApp Web se escribía en
+	// `store.DeviceProps`, que es el TEMPLATE del paquete, DESPUÉS de crear o cargar el
+	// device. El device conservaba la versión compilada y el handshake seguía enviándola:
+	// WhatsApp lo rechazaba con "405 Client outdated" y, como no hay handshake, tampoco
+	// se generaba nunca un QR (bucle "no QR code available"). Se copia al DEVICE justo
+	// antes de construir el cliente.
+	if deviceStore.DeviceProps != nil {
+		if store.DeviceProps != nil {
+			if store.DeviceProps.Version != nil {
+				deviceStore.DeviceProps.Version = store.DeviceProps.Version
+			}
+			deviceStore.DeviceProps.Os = store.DeviceProps.Os
+			deviceStore.DeviceProps.PlatformType = store.DeviceProps.PlatformType
+			deviceStore.DeviceProps.RequireFullSync = store.DeviceProps.RequireFullSync
+		}
+	}
+
 	client := whatsmeow.NewClient(deviceStore, clientLog)
 
 	w.clientPointer[cd.Instance.Id] = client
