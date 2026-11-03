@@ -14,11 +14,6 @@ RUN go mod download
 # Copiar o restante do código
 COPY . .
 
-# FIX (rsomoza01/evolution-go): o whatsmeow fixado no go.mod é de 30/06/2026 e a versão de
-# cliente WhatsApp compilada nele já é rejeitada (405 Client outdated). Atualiza no build
-# para a última versão publicada.
-RUN go get go.mau.fi/whatsmeow@latest && go mod tidy
-
 ARG VERSION=dev
 RUN CGO_ENABLED=1 go build -ldflags "-X main.version=${VERSION}" -o server ./cmd/evolution-go
 
