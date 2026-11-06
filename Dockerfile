@@ -1,9 +1,10 @@
-FROM golang:1.25.0-alpine AS build
+FROM golang:1.26.10-alpine AS build
 
 RUN apk update && apk add --no-cache git build-base libjpeg-turbo-dev libwebp-dev
 
 WORKDIR /build
 
+# O whatsmeow atualizado exige go >= 1.26 (o Dockerfile original fixava 1.25.0).
 # Copiar apenas arquivos de dependências primeiro para cachear o download
 COPY go.mod go.sum ./
 
